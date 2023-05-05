@@ -9,6 +9,10 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.enableCors({
+    origin: 'https://site.lnkc.xyz',
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
