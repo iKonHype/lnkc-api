@@ -7,7 +7,7 @@ import { LinkDto } from './dtos/link.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LinkService } from './link.service';
 
-@Controller('shorts')
+@Controller('links')
 @Serialize(LinkDto)
 export class LinkController {
   constructor(
