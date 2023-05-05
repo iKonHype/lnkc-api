@@ -15,10 +15,6 @@ export class AppController {
   @Get()
   @Redirect('', 301)
   async redirectToClient() {
-    console.log(
-      'redirecting to ',
-      this.configService.get<string>('CLIENT_ORIGIN'),
-    );
     return this.configService.get<string>('CLIENT_ORIGIN');
   }
 
