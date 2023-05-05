@@ -13,7 +13,7 @@ export class AppController {
   ) {}
 
   @Get()
-  @Redirect('', 301)
+  @Redirect('', 302)
   async redirectToClient() {
     return this.configService.get<string>('CLIENT_ORIGIN');
   }
