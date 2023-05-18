@@ -27,7 +27,7 @@ jobs:
           eb init --platform ${{secrets.AWS_PLATFORM}} --region ${{secrets.AWS_DEFAULT_REGION }}
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb deploy
+          eb deploy Lnkc-staging-env
       - name: Success
         run: |
           echo "Success"
