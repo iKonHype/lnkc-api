@@ -5,6 +5,9 @@ import { LinkModule } from './link/link.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Link } from './link/link.entity';
+import { AuthenticationModule } from './authentication/authentication.module';
+import { UserModule } from './user/user.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { Link } from './link/link.entity';
     }),
     TypeOrmModule.forFeature([Link]),
     LinkModule,
+    AuthenticationModule,
+    UserModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
