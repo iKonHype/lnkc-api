@@ -10,12 +10,22 @@ import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { User } from './user/user.entity';
 import { Role } from './role/role.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      global: true,
+      useFactory: (config: ConfigService) => ({
+        global: true,
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '60s' },
+      }),
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
