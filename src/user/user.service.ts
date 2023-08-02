@@ -30,10 +30,20 @@ export class UserService {
     return newUser;
   }
 
+  async findByEmail(email: string) {
+    if (!email) return null;
+    const user = await this.userRepository
+      .createQueryBuilder('t_user')
+      .where('t_user.email = :email', { email })
+      .leftJoinAndSelect('t_user.role', 'role')
+      .getOne();
+    return user;
+  }
+
   async isExist(email: string) {
     if (!email) return null;
 
-    const user = await this.userRepository.find({ where: { email } });
-    return !!user?.length;
+    const user = await this.findByEmail(email);
+    return !!user;
   }
 }
