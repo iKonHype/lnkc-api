@@ -10,7 +10,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly roleService: RoleService,
+    private roleService: RoleService,
   ) {}
 
   async create({ firstName, lastName, email, password }: CreateUserDto) {
@@ -25,25 +25,39 @@ export class UserService {
       password,
       role,
     });
-    this.userRepository.save(newUser);
 
-    return newUser;
+    try {
+      const savedUser = await this.userRepository.save(newUser);
+      return savedUser;
+    } catch {
+      throw new Error('Something went wrong when creating the user');
+    }
   }
 
   async findByEmail(email: string) {
     if (!email) return null;
-    const user = await this.userRepository
-      .createQueryBuilder('t_user')
-      .where('t_user.email = :email', { email })
-      .leftJoinAndSelect('t_user.role', 'role')
-      .getOne();
-    return user;
+    try {
+      const user = await this.userRepository
+        .createQueryBuilder('t_user')
+        .where('t_user.email = :email', { email })
+        .leftJoinAndSelect('t_user.role', 'role')
+        .getOne();
+      return user;
+    } catch {
+      throw new Error('Something went wrong when finding the user');
+    }
   }
 
   async isExist(email: string) {
     if (!email) return null;
+    let user: User | undefined;
 
-    const user = await this.findByEmail(email);
-    return !!user;
+    try {
+      user = await this.findByEmail(email);
+    } catch {
+      throw new Error('Something went wrong when finding the user');
+    } finally {
+      return !!user;
+    }
   }
 }

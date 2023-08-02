@@ -11,6 +11,8 @@ import { RoleModule } from './role/role.module';
 import { User } from './user/user.entity';
 import { Role } from './role/role.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { TeamModule } from './team/team.module';
+import { Team } from './team/team.entity';
 
 @Module({
   imports: [
@@ -36,15 +38,16 @@ import { JwtModule } from '@nestjs/jwt';
         username: config.get<string>('POSTGRES_USER'),
         password: config.get<string>('POSTGRES_PASSWORD'),
         database: config.get<string>('POSTGRES_DATABASE'),
-        entities: [Link, User, Role],
+        entities: [Link, User, Role, Team],
         synchronize: false,
       }),
     }),
-    TypeOrmModule.forFeature([Link, User, Role]),
+    TypeOrmModule.forFeature([Link, User, Role, Team]),
     LinkModule,
     AuthenticationModule,
     UserModule,
     RoleModule,
+    TeamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

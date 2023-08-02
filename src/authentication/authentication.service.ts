@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { TeamService } from 'src/team/team.service';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { SignUserDto } from 'src/user/dtos/sign-user.dto';
 import { UserService } from 'src/user/user.service';
@@ -15,9 +16,10 @@ import { createHash } from 'src/utils/hash.util';
 @Injectable()
 export class AuthenticationService {
   constructor(
-    private userService: UserService,
-    private jwtService: JwtService,
     private configService: ConfigService,
+    private jwtService: JwtService,
+    private userService: UserService,
+    private teamService: TeamService,
   ) {}
 
   async signup({ firstName, lastName, email, password }: CreateUserDto) {
@@ -34,6 +36,17 @@ export class AuthenticationService {
         lastName,
         email,
         password: result,
+      });
+
+      /**
+       * Create user team automatically when signing up
+       * Team name template: [firstname]'s Team
+       * User can edit the team name later
+       */
+      await this.teamService.create({
+        teamName: `${firstName}'s Team`,
+        description: '',
+        owner: user,
       });
 
       return user;

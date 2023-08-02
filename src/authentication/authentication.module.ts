@@ -4,9 +4,10 @@ import { AuthenticationService } from './authentication.service';
 import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { TeamModule } from 'src/team/team.module';
 
 @Module({
-  imports: [UserModule, JwtModule, ConfigModule],
+  imports: [JwtModule, ConfigModule, UserModule, TeamModule],
   controllers: [AuthenticationController],
   providers: [AuthenticationService],
 })
