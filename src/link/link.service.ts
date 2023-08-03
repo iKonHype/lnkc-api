@@ -2,19 +2,40 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Link } from './link.entity';
+import { generateShortode } from 'src/utils/link.util';
+import { CreateLinkDto } from './dtos/create-link.dto';
+import { TeamService } from 'src/team/team.service';
 
 @Injectable()
 export class LinkService {
   constructor(
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
+    private teamService: TeamService,
   ) {}
 
-  create(url: string) {
-    const shortCode = (+new Date()).toString(36);
-    const newLink = this.linkRepository.create({ url, shortCode });
-    this.linkRepository.save(newLink);
-    return newLink;
+  async create({ url, title, description, teamId }: CreateLinkDto) {
+    try {
+      const shortCode = generateShortode();
+
+      const team = await this.teamService.findById(teamId);
+      if (!team) {
+        throw new Error('Something went wrong when getting team');
+      }
+
+      const newLink = this.linkRepository.create({
+        url,
+        shortCode,
+        title,
+        description,
+        team,
+      });
+
+      const savedLink = await this.linkRepository.save(newLink);
+      return savedLink;
+    } catch {
+      throw new Error('Something went wrong when creating short url');
+    }
   }
 
   find() {

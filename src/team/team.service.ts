@@ -10,7 +10,7 @@ export class TeamService {
     @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
   ) {}
 
-  async create({ teamName, description, owner }: CreateTeamDto) {
+  async create({ teamName, description, owner }: CreateTeamDto): Promise<Team> {
     const newTeam = this.teamRepo.create({
       teamName,
       description,
@@ -21,6 +21,15 @@ export class TeamService {
       return savedTeam;
     } catch {
       throw new Error('Something went wrong when creating the team');
+    }
+  }
+
+  async findById(teamId: string): Promise<Team> {
+    try {
+      const team = await this.teamRepo.findOneBy({ id: teamId });
+      return team;
+    } catch {
+      throw new Error('Something went wrong when getting team');
     }
   }
 }

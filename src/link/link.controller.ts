@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Link } from './link.entity';
@@ -6,6 +14,7 @@ import { CreateLinkDto } from './dtos/create-link.dto';
 import { LinkDto } from './dtos/link.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LinkService } from './link.service';
+import { Restricted } from 'src/guards/auth.guard';
 
 @Controller('links')
 @Serialize(LinkDto)
@@ -16,11 +25,19 @@ export class LinkController {
     private linkService: LinkService,
   ) {}
 
+  @Restricted()
   @Post('/new')
-  async create(@Body() urlData: CreateLinkDto): Promise<LinkDto> {
-    return await this.linkService.create(urlData.url);
+  async create(@Body() body: CreateLinkDto): Promise<LinkDto> {
+    try {
+      return await this.linkService.create(body);
+    } catch {
+      throw new InternalServerErrorException(
+        'Something went wrong while creating the link',
+      );
+    }
   }
 
+  @Restricted()
   @Get('/all')
   async findAll(): Promise<LinkDto[]> {
     return await this.linkService.find();

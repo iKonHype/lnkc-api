@@ -1,8 +1,10 @@
+import { Link } from 'src/link/link.entity';
 import { User } from 'src/user/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -21,4 +23,7 @@ export class Team {
   @OneToOne(() => User)
   @JoinColumn({ name: 'owner' })
   owner: User;
+
+  @OneToMany(() => Link, (link) => link.team)
+  links: Link[];
 }

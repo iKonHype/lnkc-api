@@ -1,8 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUrl } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateLinkDto {
   @ApiProperty()
   @IsUrl()
+  @IsNotEmpty()
   url: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  teamId: string;
 }
