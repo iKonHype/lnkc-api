@@ -5,7 +5,7 @@ import {
   Body,
   Param,
   Delete,
-  InternalServerErrorException,
+  Request,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +15,8 @@ import { LinkDto } from './dtos/link.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LinkService } from './link.service';
 import { Restricted } from 'src/guards/auth.guard';
+import { Request as Res } from 'express';
+import { CustomException } from 'src/utils/error.util';
 
 @Controller('links')
 @Serialize(LinkDto)
@@ -27,13 +29,18 @@ export class LinkController {
 
   @Restricted()
   @Post('/new')
-  async create(@Body() body: CreateLinkDto): Promise<LinkDto> {
+  async create(
+    @Body() body: CreateLinkDto,
+    @Request() req: Res,
+  ): Promise<LinkDto> {
     try {
-      return await this.linkService.create(body);
-    } catch {
-      throw new InternalServerErrorException(
-        'Something went wrong while creating the link',
-      );
+      const user = req['user']?.sub ?? '';
+      return await this.linkService.create(user, body);
+    } catch (error) {
+      throw new CustomException({
+        error,
+        fallbackMessage: 'Something went wrong while creating the link',
+      });
     }
   }
 

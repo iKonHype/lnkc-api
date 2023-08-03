@@ -14,13 +14,20 @@ export class LinkService {
     private teamService: TeamService,
   ) {}
 
-  async create({ url, title, description, teamId }: CreateLinkDto) {
+  async create(
+    user: string,
+    { url, title, description, teamId }: CreateLinkDto,
+  ) {
     try {
       const shortCode = generateShortode();
 
       const team = await this.teamService.findById(teamId);
       if (!team) {
         throw new Error('Something went wrong when getting team');
+      }
+
+      if (team.owner?.id !== user) {
+        throw new Error('Invalid user without link create permissions');
       }
 
       const newLink = this.linkRepository.create({
@@ -33,8 +40,8 @@ export class LinkService {
 
       const savedLink = await this.linkRepository.save(newLink);
       return savedLink;
-    } catch {
-      throw new Error('Something went wrong when creating short url');
+    } catch (error) {
+      throw error;
     }
   }
 
