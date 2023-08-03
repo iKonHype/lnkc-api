@@ -26,10 +26,27 @@ export class TeamService {
 
   async findById(teamId: string): Promise<Team> {
     try {
-      const team = await this.teamRepo.findOneBy({ id: teamId });
+      const team = await this.teamRepo.findOne({
+        where: { id: teamId },
+        relations: {
+          owner: true,
+        },
+      });
       return team;
     } catch {
       throw new Error('Something went wrong when getting team');
+    }
+  }
+
+  async find() {
+    try {
+      return await this.teamRepo.find({
+        relations: {
+          owner: true,
+        },
+      });
+    } catch {
+      throw new Error('Something went wrong while getting teams');
     }
   }
 }
