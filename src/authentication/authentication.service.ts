@@ -11,7 +11,7 @@ import { TeamService } from 'src/team/team.service';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { SignUserDto } from 'src/user/dtos/sign-user.dto';
 import { UserService } from 'src/user/user.service';
-import { createHash } from 'src/utils/hash.util';
+import { createHash } from 'src/utils/auth.util';
 
 @Injectable()
 export class AuthenticationService {
