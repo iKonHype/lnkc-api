@@ -49,4 +49,15 @@ export class TeamService {
       throw new Error('Something went wrong while getting teams');
     }
   }
+
+  async isTeamOwner(teamId: string, userId: string): Promise<boolean> {
+    if (!teamId || !userId) throw new Error('Invalid team or user');
+
+    try {
+      const team = await this.findById(teamId);
+      return team.owner?.id === userId;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

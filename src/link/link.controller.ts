@@ -15,10 +15,10 @@ import { LinkDto } from './dtos/link.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LinkService } from './link.service';
 import { Restricted } from 'src/guards/auth.guard';
-import { Request as Res } from 'express';
+import { Request as Req } from 'express';
 import { CustomException } from 'src/utils/error.util';
 
-@Controller('links')
+@Controller('api/links')
 @Serialize(LinkDto)
 export class LinkController {
   constructor(
@@ -28,10 +28,10 @@ export class LinkController {
   ) {}
 
   @Restricted()
-  @Post('/new')
+  @Post('/')
   async create(
     @Body() body: CreateLinkDto,
-    @Request() req: Res,
+    @Request() req: Req,
   ): Promise<LinkDto> {
     try {
       const user = req['user']?.sub ?? '';
@@ -45,8 +45,27 @@ export class LinkController {
   }
 
   @Restricted()
-  @Get('/all')
-  async findAll(): Promise<LinkDto[]> {
+  @Get('/')
+  async findAll(@Request() req: Req) {
+    try {
+      const userId = String(req['user'].sub ?? '');
+
+      let teamId = req.headers['x-team-id'];
+      if (Array.isArray(teamId)) teamId = teamId.pop();
+      console.log('teamId', teamId);
+
+      return await this.linkService.findAllByTeam(userId, teamId);
+    } catch (error) {
+      throw new CustomException({
+        error,
+        fallbackMessage: 'Something went wrong when reading links',
+      });
+    }
+  }
+
+  @Restricted()
+  @Get('/super/all')
+  async findAllSuper(): Promise<LinkDto[]> {
     return await this.linkService.find();
   }
 

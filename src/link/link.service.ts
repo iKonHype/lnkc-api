@@ -45,6 +45,29 @@ export class LinkService {
     }
   }
 
+  async findAllByTeam(userId: string, teamId: string) {
+    if (!teamId) throw new Error('Invalid team id');
+
+    try {
+      const isCurrentUserIsTheTeamOwner = await this.teamService.isTeamOwner(
+        teamId,
+        userId,
+      );
+      if (!isCurrentUserIsTheTeamOwner) {
+        throw new Error('Invalid user without link read permissions');
+      }
+
+      const links = await this.linkRepository
+        .createQueryBuilder('t_link')
+        .where('t_link.team_id = :teamId', { teamId })
+        .getMany();
+
+      return links;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   find() {
     return this.linkRepository.find();
   }
