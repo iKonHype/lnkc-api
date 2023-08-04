@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Request,
+  Headers,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,6 +18,7 @@ import { LinkService } from './link.service';
 import { Restricted } from 'src/guards/auth.guard';
 import { Request as Req } from 'express';
 import { CustomException } from 'src/utils/error.util';
+import { X_TEAM_ID } from 'src/utils/constants';
 
 @Controller('api/links')
 @Serialize(LinkDto)
@@ -31,11 +33,10 @@ export class LinkController {
   @Post('/')
   async create(
     @Body() body: CreateLinkDto,
-    @Request() req: Req,
+    @Headers(X_TEAM_ID) teamId: string,
   ): Promise<LinkDto> {
     try {
-      const user = req['user']?.sub ?? '';
-      return await this.linkService.create(user, body);
+      return await this.linkService.create(teamId, body);
     } catch (error) {
       throw new CustomException({
         error,
@@ -48,13 +49,9 @@ export class LinkController {
   @Get('/')
   async findAll(@Request() req: Req) {
     try {
-      const userId = String(req['user'].sub ?? '');
+      const teamId = req.headers?.[X_TEAM_ID] as string | undefined;
 
-      let teamId = req.headers['x-team-id'];
-      if (Array.isArray(teamId)) teamId = teamId.pop();
-      console.log('teamId', teamId);
-
-      return await this.linkService.findAllByTeam(userId, teamId);
+      return await this.linkService.findAllByTeam(teamId);
     } catch (error) {
       throw new CustomException({
         error,

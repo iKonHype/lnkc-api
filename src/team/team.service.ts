@@ -26,6 +26,9 @@ export class TeamService {
 
   async findById(teamId: string): Promise<Team> {
     try {
+      if (!teamId) {
+        throw new Error('Cannot find the team');
+      }
       const team = await this.teamRepo.findOne({
         where: { id: teamId },
         relations: {
@@ -33,8 +36,8 @@ export class TeamService {
         },
       });
       return team;
-    } catch {
-      throw new Error('Something went wrong when getting team');
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -47,17 +50,6 @@ export class TeamService {
       });
     } catch {
       throw new Error('Something went wrong while getting teams');
-    }
-  }
-
-  async isTeamOwner(teamId: string, userId: string): Promise<boolean> {
-    if (!teamId || !userId) throw new Error('Invalid team or user');
-
-    try {
-      const team = await this.findById(teamId);
-      return team.owner?.id === userId;
-    } catch (error) {
-      throw error;
     }
   }
 }

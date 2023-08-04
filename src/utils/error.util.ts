@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 export class CustomException {
   public error: any;
@@ -24,5 +24,18 @@ export class CustomException {
     throw new BadRequestException(
       this.error?.message ?? this.fallbackMessage ?? 'Something went wrong',
     );
+  }
+}
+
+export class GuardException extends CustomException {
+  constructor(error: any) {
+    super({ error });
+  }
+
+  throwError(): void {
+    if (this.error?.response) {
+      throw this.error;
+    }
+    throw new UnauthorizedException();
   }
 }

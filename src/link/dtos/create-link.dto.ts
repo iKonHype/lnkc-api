@@ -16,8 +16,4 @@ export class CreateLinkDto {
   @IsString()
   @IsOptional()
   description: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  teamId: string;
 }
