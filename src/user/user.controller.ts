@@ -1,4 +1,4 @@
-import { Controller, Get, Request } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Restricted } from 'src/guards/auth.guard';
 import { Request as Req } from 'express';
@@ -6,6 +6,7 @@ import { USER } from 'src/utils/constants';
 import { CustomException } from 'src/utils/error.util';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
 
 @Serialize(UserDto)
 @Controller('api/users')
@@ -23,6 +24,24 @@ export class UserController {
       throw new CustomException({
         error,
         fallbackMessage: 'Something went wrong while reading user',
+      });
+    }
+  }
+
+  @Restricted()
+  @Patch('me')
+  async updateMe(
+    @Request() req: Req,
+    @Body() body: Pick<CreateUserDto, 'firstName' | 'lastName'>,
+  ) {
+    try {
+      const user = req[USER];
+      if (!user?.sub) throw new Error('Invalid identifier - user');
+      return await this.userService.updateById(user.sub, body);
+    } catch (error) {
+      throw new CustomException({
+        error,
+        fallbackMessage: 'Something went wrong while updating user',
       });
     }
   }

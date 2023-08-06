@@ -81,4 +81,30 @@ export class UserService {
       return !!user;
     }
   }
+
+  async updateById(
+    userId: string,
+    { firstName, lastName }: Pick<CreateUserDto, 'firstName' | 'lastName'>,
+  ) {
+    try {
+      if (!firstName && !lastName)
+        throw new Error('All fields are empty - nothing to update');
+      const user = await this.userRepository
+        .createQueryBuilder('t_user')
+        .update(User, { firstName, lastName })
+        .where('t_user.id = :userId', { userId })
+        .returning('*')
+        .execute();
+      const plainResult = user.raw[0];
+      if (!plainResult?.id) throw new Error('Invalid identifier - user');
+      const userInstance = this.userRepository.create({
+        ...plainResult,
+        firstName: plainResult.first_name,
+        lastName: plainResult.last_name,
+      });
+      return userInstance;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
