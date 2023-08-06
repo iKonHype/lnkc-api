@@ -5,8 +5,8 @@ import {
   Body,
   Param,
   Delete,
-  Request,
   Headers,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,7 +16,6 @@ import { LinkDto } from './dtos/link.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LinkService } from './link.service';
 import { Restricted } from 'src/guards/auth.guard';
-import { Request as Req } from 'express';
 import { CustomException } from 'src/utils/error.util';
 import { X_TEAM_ID } from 'src/utils/constants';
 
@@ -47,11 +46,28 @@ export class LinkController {
 
   @Restricted()
   @Get('/')
-  async findAll(@Request() req: Req) {
+  async findAll(@Headers(X_TEAM_ID) teamId: string) {
     try {
-      const teamId = req.headers?.[X_TEAM_ID] as string | undefined;
-
       return await this.linkService.findAllByTeam(teamId);
+    } catch (error) {
+      throw new CustomException({
+        error,
+        fallbackMessage: 'Something went wrong when reading links',
+      });
+    }
+  }
+
+  @Restricted()
+  @Get('/:id')
+  async findOne(
+    @Param('id') linkId: string,
+    @Headers(X_TEAM_ID) teamId: string,
+  ) {
+    try {
+      if (!linkId || !teamId) {
+        throw new BadRequestException('invalid identifier');
+      }
+      return await this.linkService.findOneById(linkId, teamId);
     } catch (error) {
       throw new CustomException({
         error,
@@ -67,7 +83,7 @@ export class LinkController {
   }
 
   @Get(':shortCode')
-  async findOne(@Param('shortCode') shortCode: string): Promise<LinkDto> {
+  async findOneSuper(@Param('shortCode') shortCode: string): Promise<LinkDto> {
     return await this.linkService.findOne(shortCode);
   }
 

@@ -39,15 +39,34 @@ export class LinkService {
   }
 
   async findAllByTeam(teamId: string) {
-    if (!teamId) throw new Error('Invalid team id');
-
     try {
+      if (!teamId) throw new Error('Invalid team id');
+
       const links = await this.linkRepository
         .createQueryBuilder('t_link')
         .where('t_link.team_id = :teamId', { teamId })
         .getMany();
 
       return links;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findOneById(linkId: string, teamId: string) {
+    try {
+      if (!linkId) {
+        throw new Error('Link id is null');
+      }
+      const link = await this.linkRepository
+        .createQueryBuilder('t_link')
+        .where('t_link.id = :linkId', { linkId })
+        .andWhere('t_link.team_id = :teamId', { teamId })
+        .getOne();
+      if (!link) {
+        throw new Error('Cannot find the link');
+      }
+      return link;
     } catch (error) {
       throw error;
     }
