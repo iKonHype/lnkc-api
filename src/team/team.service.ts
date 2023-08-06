@@ -57,15 +57,21 @@ export class TeamService {
     }
   }
 
-  async find() {
+  async updateByOwner(
+    ownerId: string,
+    { teamName, description }: Pick<CreateTeamDto, 'teamName' | 'description'>,
+  ) {
     try {
-      return await this.teamRepo.find({
-        relations: {
-          owner: true,
-        },
-      });
-    } catch {
-      throw new Error('Something went wrong while getting teams');
+      const team = await this.findByOwner(ownerId);
+      const updatedTeam = await this.teamRepo.save({
+        ...team,
+        teamName,
+        description,
+      } as Team);
+      if (!updatedTeam?.id) throw new Error('Failed to update team');
+      return updatedTeam;
+    } catch (error) {
+      throw error;
     }
   }
 }
