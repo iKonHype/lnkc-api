@@ -4,6 +4,7 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { RoleService } from 'src/role/role.service';
+import { TeamService } from 'src/team/team.service';
 
 @Injectable()
 export class UserService {
@@ -11,6 +12,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private roleService: RoleService,
+    private teamService: TeamService,
   ) {}
 
   async create({ firstName, lastName, email, password }: CreateUserDto) {
@@ -45,6 +47,25 @@ export class UserService {
       return user;
     } catch {
       throw new Error('Something went wrong when finding the user');
+    }
+  }
+
+  async findById(userId: string) {
+    try {
+      if (!userId) throw new Error('Invalid identifier - user');
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+        relations: {
+          role: true,
+        },
+      });
+
+      const team = await this.teamService.findByOwner(userId);
+      if (!team?.id) throw new Error('Invalid identifier - team');
+
+      return { ...user, team: team.id, role: user.role.id };
+    } catch (error) {
+      throw error;
     }
   }
 

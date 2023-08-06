@@ -41,6 +41,22 @@ export class TeamService {
     }
   }
 
+  async findByOwner(ownerId: string): Promise<Team> {
+    try {
+      if (!ownerId) throw new Error('Invalid identifier - owner');
+      const team = await this.teamRepo
+        .createQueryBuilder('t_team')
+        .where('t_team.owner = :ownerId', { ownerId })
+        .getOne();
+      if (!team) {
+        throw new Error('Cannot find the team');
+      }
+      return team;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async find() {
     try {
       return await this.teamRepo.find({

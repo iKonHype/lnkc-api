@@ -14,5 +14,11 @@ export class UserDto {
   email: string;
 
   @Expose()
-  token: string;
+  team?: string;
+
+  @Expose()
+  role?: string;
+
+  @Expose()
+  token?: string;
 }

@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { X_TEAM_OWNER } from 'src/utils/constants';
 import { GuardException } from '../utils/error.util';
+import { isTeamProtectedRoute } from '../utils/auth.util';
 
 export function Restricted() {
   return UseGuards(AuthGuard);
@@ -35,7 +36,7 @@ export class AuthGuard implements CanActivate {
       });
 
       const teamOwner = request.headers?.[X_TEAM_OWNER];
-      if (payload?.sub !== teamOwner) {
+      if (payload?.sub !== teamOwner && isTeamProtectedRoute(request?.url)) {
         throw new UnauthorizedException(
           "You don't have permissions to access this team",
         );
