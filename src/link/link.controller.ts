@@ -7,6 +7,7 @@ import {
   Delete,
   Headers,
   BadRequestException,
+  Patch,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,6 +19,7 @@ import { LinkService } from './link.service';
 import { Restricted } from 'src/guards/auth.guard';
 import { CustomException } from 'src/utils/error.util';
 import { X_TEAM_ID } from 'src/utils/constants';
+import { UpdateLinkDto } from './dtos/update-link.dto';
 
 @Controller('api/links')
 @Serialize(LinkDto)
@@ -58,7 +60,7 @@ export class LinkController {
   }
 
   @Restricted()
-  @Get('/:id')
+  @Get(':id')
   async findOne(
     @Param('id') linkId: string,
     @Headers(X_TEAM_ID) teamId: string,
@@ -77,14 +79,26 @@ export class LinkController {
   }
 
   @Restricted()
-  @Get('/super/all')
-  async findAllSuper(): Promise<LinkDto[]> {
-    return await this.linkService.find();
-  }
-
-  @Get(':shortCode')
-  async findOneSuper(@Param('shortCode') shortCode: string): Promise<LinkDto> {
-    return await this.linkService.findOne(shortCode);
+  @Patch(':id')
+  async updateOne(
+    @Param('id') linkId: string,
+    @Body() body: UpdateLinkDto,
+    @Headers(X_TEAM_ID) teamId: string,
+  ) {
+    try {
+      if (!linkId || !teamId) throw new Error('Invalid Identifier');
+      const updatedLink = await this.linkService.updateOneById({
+        teamId,
+        linkId,
+        body,
+      });
+      return updatedLink;
+    } catch (error) {
+      throw new CustomException({
+        error,
+        fallbackMessage: 'Something went wrong when updating link',
+      });
+    }
   }
 
   @Delete(':id')
@@ -97,5 +111,16 @@ export class LinkController {
     @Param('shortCode') shortCode: string,
   ): Promise<void> {
     await this.linkService.deleteByShortCode(shortCode);
+  }
+
+  @Restricted()
+  @Get('/super/all')
+  async findAllSuper(): Promise<LinkDto[]> {
+    return await this.linkService.find();
+  }
+
+  @Get(':shortCode')
+  async findOneSuper(@Param('shortCode') shortCode: string): Promise<LinkDto> {
+    return await this.linkService.findOne(shortCode);
   }
 }

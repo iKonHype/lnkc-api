@@ -5,6 +5,7 @@ import { Link } from './link.entity';
 import { generateShortode } from 'src/utils/link.util';
 import { CreateLinkDto } from './dtos/create-link.dto';
 import { TeamService } from 'src/team/team.service';
+import { UpdateLinkDto } from './dtos/update-link.dto';
 
 @Injectable()
 export class LinkService {
@@ -67,6 +68,40 @@ export class LinkService {
         throw new Error('Cannot find the link');
       }
       return link;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateOneById({
+    teamId,
+    linkId,
+    body,
+  }: {
+    teamId: string;
+    linkId: string;
+    body: UpdateLinkDto;
+  }) {
+    try {
+      if (!teamId || !linkId) throw new Error('Invalid identifier');
+      const link = await this.linkRepository
+        .createQueryBuilder('t_link')
+        .update(Link, body)
+        .where('t_link.id = :linkId', { linkId })
+        .andWhere('t_link.team_id = :teamId', { teamId })
+        .returning('*')
+        .execute();
+
+      const plainResult = link.raw[0];
+      const linkInstance = this.linkRepository.create({
+        ...plainResult,
+        shortCode: plainResult.short_code,
+        hasQr: plainResult.has_qr,
+        isCustom: plainResult.is_custom,
+        isPinned: plainResult.is_pinned,
+      });
+
+      return linkInstance;
     } catch (error) {
       throw error;
     }
