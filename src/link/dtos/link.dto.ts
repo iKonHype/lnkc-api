@@ -5,6 +5,12 @@ export class LinkDto {
   id: string;
 
   @Expose()
+  title: string;
+
+  @Expose()
+  description: string;
+
+  @Expose()
   url: string;
 
   @Expose()
