@@ -8,6 +8,8 @@ import {
   Headers,
   BadRequestException,
   Patch,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,6 +32,7 @@ export class LinkController {
     private linkService: LinkService,
   ) {}
 
+  @HttpCode(HttpStatus.CREATED)
   @Restricted()
   @Post('/')
   async create(
@@ -101,26 +104,20 @@ export class LinkController {
     }
   }
 
-  @Delete(':id')
-  async removeById(@Param('id') id: string): Promise<void> {
-    await this.linkService.deleteById(id);
-  }
-
-  @Delete('code/:shortCode')
-  async removeByShortCode(
-    @Param('shortCode') shortCode: string,
-  ): Promise<void> {
-    await this.linkService.deleteByShortCode(shortCode);
-  }
-
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Restricted()
-  @Get('/super/all')
-  async findAllSuper(): Promise<LinkDto[]> {
-    return await this.linkService.find();
-  }
-
-  @Get(':shortCode')
-  async findOneSuper(@Param('shortCode') shortCode: string): Promise<LinkDto> {
-    return await this.linkService.findOne(shortCode);
+  @Delete(':id')
+  async removeById(
+    @Param('id') linkId: string,
+    @Headers(X_TEAM_ID) teamId: string,
+  ) {
+    try {
+      await this.linkService.deleteOneById(teamId, linkId);
+    } catch (error) {
+      throw new CustomException({
+        error,
+        fallbackMessage: 'Something when wrong when while deleting link',
+      });
+    }
   }
 }

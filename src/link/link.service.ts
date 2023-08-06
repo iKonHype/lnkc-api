@@ -107,20 +107,29 @@ export class LinkService {
     }
   }
 
+  async deleteOneById(teamId: string, linkId: string) {
+    try {
+      if (!linkId) throw new Error('Invalid identifier - link');
+
+      const { affected } = await this.linkRepository
+        .createQueryBuilder('t_link')
+        .delete()
+        .from(Link)
+        .where('t_link.id = :linkId', { linkId })
+        .andWhere('t_link.team_id = :teamId', { teamId })
+        .execute();
+
+      if (!affected) throw new Error('Invalid identifier - team');
+    } catch (error) {
+      throw error;
+    }
+  }
+
   find() {
     return this.linkRepository.find();
   }
 
   findOne(shortCode: string) {
     return this.linkRepository.findOneBy({ shortCode });
-  }
-
-  deleteById(id: string) {
-    this.linkRepository.delete(id);
-  }
-
-  async deleteByShortCode(shortCode: string) {
-    const link = await this.findOne(shortCode);
-    this.deleteById(link.id);
   }
 }
