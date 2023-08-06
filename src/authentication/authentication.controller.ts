@@ -5,7 +5,7 @@ import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from 'src/user/dtos/user.dto';
 import { SignUserDto } from 'src/user/dtos/sign-user.dto';
 
-@Controller('auth')
+@Controller('api/auth')
 @Serialize(UserDto)
 export class AuthenticationController {
   constructor(private authService: AuthenticationService) {}

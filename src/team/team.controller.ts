@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { TeamService } from './team.service';
 
-@Controller('teams')
+@Controller('api/teams')
 export class TeamController {
   constructor(private teamService: TeamService) {}
 
