@@ -116,4 +116,13 @@ export class UserService {
       throw error;
     }
   }
+
+  async deleteUser(userId: string) {
+    try {
+      if (!userId) throw new Error('Invalid identifier - user');
+      await this.userRepository.delete({ id: userId });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
