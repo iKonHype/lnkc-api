@@ -107,4 +107,13 @@ export class UserService {
       throw error;
     }
   }
+
+  async silentUpdate(user: User) {
+    try {
+      const createdUser = await this.userRepository.save(user);
+      return createdUser;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
