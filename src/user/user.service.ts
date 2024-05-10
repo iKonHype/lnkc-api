@@ -75,10 +75,9 @@ export class UserService {
 
     try {
       user = await this.findByEmail(email);
+      return !!user;
     } catch {
       throw new Error('Something went wrong when finding the user');
-    } finally {
-      return !!user;
     }
   }
 

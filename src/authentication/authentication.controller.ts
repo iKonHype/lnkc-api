@@ -53,8 +53,8 @@ export class AuthenticationController {
   }
 
   @Restricted()
-  @Post('/change')
-  async cahngePassword(@Request() req: Req, @Body() body: PasswordChangeDto) {
+  @Post('/change-password')
+  async changePassword(@Request() req: Req, @Body() body: PasswordChangeDto) {
     try {
       const user = req[USER];
       if (!user?.username)
